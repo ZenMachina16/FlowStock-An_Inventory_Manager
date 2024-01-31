@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Inventory Tracking</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      
+      background-color: #77c60f;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 20px;
+    }
+
+    li {
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    li:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Inventory Tracking</h1>
+  <ul id="goodsList"></ul>
+
+  <script>
+    const socket = new WebSocket('ws://localhost:3000');
+
+    socket.addEventListener('open', (event) => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.addEventListener('message', (event) => {
+      const update = JSON.parse(event.data);
+
+      if (update.type === 'goods_movement') {
+        console.log('Goods Movement Update:', update.data);
+
+        // Update UI: Append goods movement to the list
+        const goodsList = document.getElementById('goodsList');
+        const listItem = document.createElement('li');
+        listItem.textContent = `${update.data.action.toUpperCase() } - ${update.data.product} - ${update.data.quantity} units at ${update.data.timestamp}`;
+        goodsList.appendChild(listItem);
+      }
+    });
+
+    socket.addEventListener('close', (event) => {
+      console.log('Disconnected from WebSocket server');
+    });
+  </script>
+</body>
+</html>
